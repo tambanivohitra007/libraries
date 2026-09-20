@@ -8,6 +8,7 @@ import TableMasterDetail from './demos/table-master-detail';
 import CommandsDemo from './demos/commands';
 import ThemingDemo from './demos/theming';
 import EmptyStateDemo from './demos/empty-state';
+import PrintDemo from './demos/print';
 
 // Vite hands us each demo's own text with `?raw`, so the snippet on screen is
 // literally the file that is running. A copy-paste example cannot go stale.
@@ -19,6 +20,7 @@ import srcMasterDetail from './demos/table-master-detail.tsx?raw';
 import srcCommands from './demos/commands.tsx?raw';
 import srcTheming from './demos/theming.tsx?raw';
 import srcEmptyState from './demos/empty-state.tsx?raw';
+import srcPrint from './demos/print.tsx?raw';
 
 export interface PropRow {
   name: string;
@@ -154,6 +156,15 @@ export const DEMOS: Demo[] = [
       'The cell cursor drives a detail pane, so the list is navigable entirely from the keyboard. Click a row, then use ↑ and ↓.',
     Component: TableMasterDetail,
     source: srcMasterDetail,
+  },
+  {
+    id: 'print',
+    group: 'Printing',
+    title: 'Print preview',
+    blurb:
+      'Paper sizes, draggable margins, zoom, watermarks, editable header/footer bands with page tokens, letterhead, signature block, and export to DOCX, CSV, TSV and JSON. Wires into any grid in one line.',
+    Component: PrintDemo,
+    source: srcPrint,
   },
   {
     id: 'theming',

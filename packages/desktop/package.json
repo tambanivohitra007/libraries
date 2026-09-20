@@ -22,7 +22,15 @@
       "types": "./dist/styles.css.d.ts",
       "default": "./dist/styles.css"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./print": {
+      "types": "./dist/print/index.d.ts",
+      "import": "./dist/print.js"
+    },
+    "./print.css": {
+      "types": "./dist/print.css.d.ts",
+      "default": "./dist/print.css"
+    }
   },
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json && node scripts/build-css.mjs",
@@ -48,6 +56,10 @@
     "react-i18next": "^17.0.8",
     "typescript": "^6.0.3",
     "vite": "^8.0.16",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.8",
+    "qrcode-generator": "^2.0.4"
+  },
+  "dependencies": {
+    "qrcode-generator": "^2.0.4"
   }
 }

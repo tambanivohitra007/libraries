@@ -9,9 +9,13 @@ export default defineConfig({
   plugins: [react()],
   build: {
     lib: {
-      entry: resolve(import.meta.dirname, 'src/index.ts'),
+      entry: {
+        index: resolve(import.meta.dirname, 'src/index.ts'),
+        // A separate chunk, so an app that never prints does not carry a DOCX
+        // writer and 31 kB of print CSS.
+        print: resolve(import.meta.dirname, 'src/print/index.ts'),
+      },
       formats: ['es'],
-      fileName: () => 'index.js',
     },
     rollupOptions: {
       external: [
@@ -21,6 +25,7 @@ export default defineConfig({
         'react-i18next',
         'antd',
         '@ant-design/icons',
+        'qrcode-generator',
         /^antd\//,
         /^@ant-design\//,
       ],
@@ -34,8 +39,10 @@ export default defineConfig({
         // is correct — client components still SSR.
         // Must stay the very first statement in the file.
         banner: "'use client';",
-        assetFileNames: (info) =>
-          info.names?.includes('index.css') ? 'styles.css' : '[name][extname]',
+        entryFileNames: '[name].js',
+        // The only CSS in the JS graph is the preview's own sheet; the main
+        // stylesheet is assembled separately by scripts/build-css.mjs.
+        assetFileNames: () => 'print.css',
       },
     },
     sourcemap: true,

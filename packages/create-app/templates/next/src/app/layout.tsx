@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 // The library's stylesheet defines the design tokens the app's own sheet paints
 // with, so it is imported first. Global CSS may only be imported here.
 import '@rindra/desktop/styles.css';
+import '@rindra/desktop/print.css';
 import '../styles/app.css';
 import { Providers } from './providers';
 

@@ -3,7 +3,8 @@
 import { App as AntApp } from 'antd';
 import __ANTD_LOCALE_NAME__ from '__ANTD_LOCALE_MODULE__';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
-import { AccentProvider, CommandsProvider } from '@rindra/desktop';
+import { AccentProvider, CommandsProvider, DataTableConfigProvider } from '@rindra/desktop';
+import { PrintPreview } from '@rindra/desktop/print';
 import '../i18n';
 
 /**
@@ -19,7 +20,9 @@ export function Providers({ children }: { children: React.ReactNode }): React.JS
     <AntdRegistry>
       <AccentProvider locale={__ANTD_LOCALE_NAME__} defaultAccent="__ACCENT__">
         <AntApp>
-          <CommandsProvider>{children}</CommandsProvider>
+          <CommandsProvider>
+            <DataTableConfigProvider config={{ PrintPreview }}>{children}</DataTableConfigProvider>
+          </CommandsProvider>
         </AntApp>
       </AccentProvider>
     </AntdRegistry>

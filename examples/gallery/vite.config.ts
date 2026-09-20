@@ -8,12 +8,27 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: {
-      '@rindra/desktop/styles.css': resolve(
-        import.meta.dirname,
-        '../../packages/desktop/src/styles/index.css',
-      ),
-      '@rindra/desktop': resolve(import.meta.dirname, '../../packages/desktop/src/index.ts'),
-    },
+    // Order matters: the subpaths must precede the bare specifier, or
+    // '@rindra/desktop' would match '@rindra/desktop/print' first.
+    alias: [
+      {
+        find: '@rindra/desktop/styles.css',
+        replacement: resolve(import.meta.dirname, '../../packages/desktop/src/styles/index.css'),
+      },
+      {
+        // The preview imports its own sheet, so aliasing it to a real file
+        // would load it twice; point at an empty stub instead.
+        find: '@rindra/desktop/print.css',
+        replacement: resolve(import.meta.dirname, 'src/empty.css'),
+      },
+      {
+        find: '@rindra/desktop/print',
+        replacement: resolve(import.meta.dirname, '../../packages/desktop/src/print/index.ts'),
+      },
+      {
+        find: '@rindra/desktop',
+        replacement: resolve(import.meta.dirname, '../../packages/desktop/src/index.ts'),
+      },
+    ],
   },
 });

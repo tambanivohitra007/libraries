@@ -1,0 +1,1349 @@
+/* ── Aperçu avant impression — feuille du composant ──────────────────────────
+   Elle vit avec le composant et non dans le style de l'application : le dossier
+   print-preview/ se copie tel quel dans un autre projet. Chaque variable de
+   thème porte une valeur de repli, de sorte que le composant s'affiche
+   correctement sans aucun token défini, et adopte ceux de l'hôte quand ils
+   existent. */
+
+/* Print preview (DevExpress-style document viewer): the ribbon, the page stage,
+   the thumbnail rail and the printed sheet itself. */
+
+/* ── Print preview (DevExpress-style document viewer) ───────────────────────── */
+.pp-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--hairline, rgba(0, 0, 0, 0.1));
+  background: var(--surface-bar, #fafafa);
+}
+
+/* DevExpress-style ribbon: captioned command groups separated by rules. */
+.pp-ribbon {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 0 2px;
+  padding: 6px 10px 2px;
+  border-bottom: 1px solid var(--hairline, rgba(0, 0, 0, 0.1));
+  background: var(--surface-bar, #fafafa);
+  /* Stay one row: the compressible half scrolls, the tail stays pinned. */
+  overflow: hidden;
+  container-type: inline-size;
+  container-name: ppribbon;
+}
+/* The commands that may overflow. The @container compression below keeps them
+   fitting at normal widths, so the scrollbar is a rarely-seen escape hatch
+   rather than the primary mechanism — but nothing is ever unreachable. */
+.pp-ribbon__scroll {
+  display: flex;
+  align-items: stretch;
+  gap: 0 2px;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  /* Auto-hiding thumb, as in the left nav: a thin bar that stays transparent
+     until the ribbon is hovered. It only exists while the row actually
+     overflows, so at normal widths the ribbon keeps its exact height. */
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.2s ease;
+  /* Scroll shadows (Komarov's technique): the two `local` gradients ride with
+     the content and mask the `scroll` ones at each end, so an edge shade shows
+     only when there really is more ribbon in that direction. */
+  background:
+    linear-gradient(to right, var(--surface-bar, #fafafa), transparent) left / 20px 100% no-repeat
+      local,
+    linear-gradient(to left, var(--surface-bar, #fafafa), transparent) right / 20px 100% no-repeat
+      local,
+    radial-gradient(
+        farthest-side at 0 50%,
+        var(--scrollbar-thumb, rgba(0, 0, 0, 0.22)),
+        transparent
+      )
+      left / 10px 100% no-repeat,
+    radial-gradient(
+        farthest-side at 100% 50%,
+        var(--scrollbar-thumb, rgba(0, 0, 0, 0.22)),
+        transparent
+      )
+      right / 10px 100% no-repeat;
+}
+.pp-ribbon__scroll:hover {
+  scrollbar-color: var(--scrollbar-thumb, rgba(0, 0, 0, 0.22)) transparent;
+}
+/* Aide & Fermer: anchored to the right edge so they can never be the commands
+   pushed out of view — Fermer is how you leave the preview. */
+.pp-ribbon__tail {
+  display: flex;
+  align-items: stretch;
+  gap: 0 2px;
+  flex: none;
+  margin-inline-start: auto;
+}
+.pp-ribbon .pp-rb-group,
+.pp-ribbon .pp-rb-sep {
+  /* Never shrink: items keep their natural size so they can't squish into /
+     overlap each other; the scroller handles the excess instead. */
+  flex: none;
+}
+.pp-rb-cmds > * {
+  flex: none;
+}
+.pp-rb-find {
+  width: 190px;
+}
+.pp-rb-sel {
+  width: 120px;
+}
+/* As the ribbon narrows, drop button labels + group captions (icon-only) and
+   shrink the inline fields, so everything stays on one row without a scrollbar. */
+@container ppribbon (max-width: 1180px) {
+  .pp-rb-btn__label,
+  .pp-rb-cap {
+    display: none;
+  }
+  .pp-rb-btn {
+    min-width: 0;
+    max-width: none;
+    padding: 5px 6px;
+  }
+  .pp-rb-find {
+    width: 150px;
+  }
+  .pp-rb-sel {
+    width: 104px;
+  }
+}
+@container ppribbon (max-width: 900px) {
+  .pp-rb-find {
+    width: 116px;
+  }
+  .pp-rb-page {
+    display: none;
+  }
+}
+.pp-rb-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 8px;
+}
+.pp-rb-cmds {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  flex: 1;
+}
+.pp-rb-cap {
+  font-size: 10.5px;
+  color: var(--text-tertiary, rgba(0, 0, 0, 0.45));
+  text-align: center;
+  padding-top: 2px;
+  white-space: nowrap;
+}
+.pp-rb-sep {
+  width: 1px;
+  align-self: stretch;
+  background: var(--hairline, rgba(0, 0, 0, 0.1));
+  margin: 2px 3px 18px;
+  flex: none;
+}
+.pp-rb-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 3px;
+  min-width: 48px;
+  max-width: 92px;
+  padding: 5px 7px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary, rgba(0, 0, 0, 0.65));
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1.15;
+  text-align: center;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    color 0.12s ease;
+}
+.pp-rb-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--text-secondary, rgba(0, 0, 0, 0.65)) 8%, transparent);
+  border-color: var(--hairline, rgba(0, 0, 0, 0.1));
+}
+.pp-rb-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.pp-rb-btn.is-active {
+  background: color-mix(in srgb, var(--chrome-accent, #2b579a) 14%, transparent);
+  border-color: color-mix(in srgb, var(--chrome-accent, #2b579a) 30%, transparent);
+  color: var(--chrome-accent, #2b579a);
+}
+.pp-rb-btn__icon {
+  font-size: 20px;
+  line-height: 1;
+}
+.pp-rb-btn--sm .pp-rb-btn__icon {
+  font-size: 15px;
+}
+.pp-rb-btn__label {
+  white-space: normal;
+  max-width: 84px;
+}
+.pp-rb-page {
+  font-size: 11px;
+  color: var(--text-secondary, rgba(0, 0, 0, 0.65));
+  padding: 0 4px;
+  white-space: nowrap;
+}
+/* A column of small inline controls (selects, find box) inside a group. */
+.pp-rb-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+}
+/* A row of small icon buttons (e.g. page navigation arrows) inside a group. */
+.pp-rb-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.pp-zoom {
+  display: inline-block;
+  min-width: 46px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.pp-pages {
+  height: 70vh;
+  overflow: auto;
+  padding: 24px;
+  background: #525659;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+/* White A4 sheets. mm units render at ~96dpi in Chromium for a true-to-page look;
+   the CSS `zoom` property (Chromium/Electron) scales each sheet for preview. */
+.pp-page {
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  color: #000;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+  padding: 12mm;
+  flex-shrink: 0;
+  /* Column flow so the footer band can be pushed to the foot of the sheet: a
+     short table must not drag it up under the last row. */
+  display: flex;
+  flex-direction: column;
+}
+/* The sheet's content, between the page margins. Grows to fill the sheet so the
+   `margin-top:auto` below has somewhere to push into. */
+.pp-sheetbody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Multi-page layout: lay the sheets in a wrapping row instead of one column. */
+.pp-pages--multi {
+  display: grid;
+  grid-template-columns: repeat(var(--pp-cols, 2), max-content);
+  justify-content: center;
+  align-items: start;
+}
+
+/* Bulletin preview: a single A4-wide white sheet (the rendered bulletin HTML in
+   an iframe) centered on the same dark stage as the print preview. */
+.bp-stage {
+  height: 74vh;
+  overflow: auto;
+  padding: 24px;
+  background: #525659;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+/* Bare mode (ID cards): drop the dark viewer tone. The cards are already styled
+   (rounded, with their own soft shadow), so they float on the dialog's own surface. */
+.bp-stage--bare {
+  background: transparent;
+}
+.bp-status {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+.bp-stage--bare .bp-status {
+  color: #333;
+}
+.bp-paper {
+  background: #fff;
+  width: 210mm;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+  flex-shrink: 0;
+}
+/* Paged mode draws its own white sheets (with gaps), so the wrapper steps back. */
+.bp-paper--paged {
+  background: transparent;
+  box-shadow: none;
+}
+.bp-frame {
+  display: block;
+  width: 210mm;
+  border: 0;
+  background: #fff;
+}
+/* Bare/paged docs supply their own body colour, so the frame stays transparent —
+   never a stray white edge if the content is shorter than the frame. */
+.bp-paper--paged .bp-frame {
+  background: transparent;
+}
+
+/* Diagonal watermark stamped on each sheet (and on every printed page). */
+.pp-watermark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-30deg);
+  font-size: 72px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: rgba(0, 0, 0, 0.1);
+  text-transform: uppercase;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* In-document find highlights. */
+.pp-hit {
+  background: #fde68a;
+}
+.pp-hit--active {
+  background: #fb923c;
+  color: #000;
+}
+.pp-find__count {
+  color: var(--text-tertiary, rgba(0, 0, 0, 0.45));
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+/* « Raccourcis clavier » tooltip: a label ↔ key list (rendered on the dark
+   tooltip surface, so keys use a translucent light chip). */
+.pp-kbd {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 230px;
+  padding: 2px 0;
+}
+.pp-kbd__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+.pp-kbd__label {
+  font-size: 12px;
+}
+.pp-kbd__keys {
+  flex: none;
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  white-space: nowrap;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+/* Watermark popover: a label/control line and the preset chips. */
+.pp-wm-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.pp-wm-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pp-wm-cap {
+  font-size: 12px;
+  color: var(--text-secondary, rgba(0, 0, 0, 0.65));
+  margin-bottom: 2px;
+}
+
+/* Bottom status bar: document stats · page navigator · zoom slider. */
+.pp-statusbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  padding: 5px 16px;
+  border-top: 1px solid var(--hairline, rgba(0, 0, 0, 0.1));
+  background: var(--surface-bar, #fafafa);
+  font-size: 12px;
+  color: var(--text-secondary, rgba(0, 0, 0, 0.65));
+}
+.pp-status__seg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 0;
+  min-width: 0;
+}
+.pp-status__nav {
+  justify-content: center;
+  flex: 0 0 auto;
+}
+.pp-status__zoom {
+  justify-content: flex-end;
+}
+.pp-status__dim {
+  color: var(--text-tertiary, rgba(0, 0, 0, 0.45));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pp-status__dot {
+  color: var(--text-tertiary, rgba(0, 0, 0, 0.45));
+}
+.pp-status__page {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.pp-status__pageinput {
+  width: 48px;
+  text-align: center;
+}
+.pp-status__pageof {
+  white-space: nowrap;
+}
+.pp-status__slider {
+  width: 130px;
+  margin: 0 4px;
+}
+.pp-status__zicon {
+  cursor: pointer;
+  color: var(--text-tertiary, rgba(0, 0, 0, 0.45));
+}
+.pp-status__zicon:hover {
+  color: var(--accent-readable, #2b579a);
+}
+/* The zoom % is also the preset picker's trigger — styled as text, not a button. */
+.pp-status__pct {
+  min-width: 46px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0 2px;
+  border-radius: 4px;
+}
+.pp-status__pct:hover {
+  background: color-mix(in srgb, var(--accent-readable, #2b579a) 18%, transparent);
+}
+.pp-page--portrait {
+  width: 210mm;
+  min-height: 297mm;
+}
+.pp-page--landscape {
+  width: 297mm;
+  min-height: 210mm;
+}
+.pp-page__title {
+  font-size: 16px;
+  font-weight: 700;
+}
+.pp-page__meta {
+  color: #555;
+  font-size: 11px;
+  margin-bottom: 10px;
+}
+.pp-page__footer {
+  /* Pinned to the bottom of the sheet, whatever the table's height. */
+  margin-top: auto;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  color: #777;
+  font-size: 10px;
+  border-top: 1px solid #ddd;
+  padding-top: 3px;
+}
+/* Three equal zones, like the printed band. */
+.pp-page__footer > span {
+  flex: 1;
+}
+.pp-page__footer > span:nth-child(2) {
+  text-align: center;
+}
+.pp-page__footer > span:last-child {
+  text-align: right;
+}
+.pp-page__note {
+  flex: 1;
+  text-align: center;
+}
+
+/* On-screen letterhead, title band and signature block (mirror the printed CSS
+   from buildHtml so the preview matches the PDF/print output). */
+.pp-ph {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.pp-lh {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+  color: #000;
+}
+.pp-lh__logo {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.pp-lh__c {
+  flex: 1;
+  text-align: center;
+}
+.pp-lh__min {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.pp-lh__rep {
+  font-size: 11px;
+  font-style: italic;
+  margin-bottom: 2px;
+}
+.pp-lh__nom {
+  font-weight: 700;
+  font-size: 15px;
+}
+.pp-lh__con {
+  font-size: 10px;
+  color: #444;
+}
+/* ── Title band ──────────────────────────────────────────────────────────────
+   Two looks, mirroring `styleTableauCss()` in templates/liste-print.ts: the
+   preview and the paper must show the same document, so edit them together.
+   Modern is the default — title on the left, date in regard, one hairline. */
+.pp-dt {
+  margin: 0 0 8px;
+  color: #17263d;
+}
+.pp-dt h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: #17263d;
+}
+.pp-dt__meta {
+  color: #6b7c96;
+  font-size: 10px;
+  margin-top: 3px;
+}
+.pp-dt--quadrille {
+  display: block;
+  text-align: center;
+  color: #000;
+  border-top: 2px solid #333;
+  border-bottom: 2px solid #333;
+  padding: 4px 0;
+  margin-bottom: 8px;
+}
+.pp-dt--quadrille h3 {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: normal;
+  color: #000;
+}
+.pp-dt--quadrille .pp-dt__meta {
+  color: #555;
+  font-size: 10px;
+}
+.pp-sig {
+  margin: 26px 0 0 auto;
+  width: 60%;
+  text-align: center;
+  color: #000;
+}
+.pp-sig__date {
+  font-size: 11px;
+  text-align: right;
+  margin-bottom: 34px;
+}
+.pp-sig__role {
+  font-size: 11px;
+  font-weight: 700;
+}
+.pp-sig__name {
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+/* Column chooser popover. */
+.pp-cols {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  overflow: auto;
+  min-width: 180px;
+}
+.pp-cols__head {
+  display: flex;
+  justify-content: flex-end;
+  border-bottom: 1px solid var(--hairline, rgba(0, 0, 0, 0.1));
+  margin-bottom: 2px;
+}
+
+/* Pages panel (thumbnail rail) beside the sheets. */
+.pp-body {
+  display: flex;
+  min-height: 0;
+}
+.pp-rail {
+  width: 140px;
+  flex-shrink: 0;
+  height: 70vh;
+  overflow: auto;
+  background: #44474a;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.pp-rail__cap {
+  align-self: stretch;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+.pp-body .pp-pages,
+.pp-body .bp-stage {
+  flex: 1;
+  min-width: 0;
+}
+/* A thumbnail is the real sheet, scaled: an overflow-hidden box of the paper's
+   aspect ratio holding a full-size page under a transform. */
+.pp-thumb {
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.pp-thumb__paper {
+  display: block;
+  overflow: hidden;
+  position: relative;
+  background: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+.pp-thumb__inner {
+  /* Same column flow as a full sheet — a thumbnail is the real page, scaled. */
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+  color: #000;
+  /* Miniature: the content is unreadable at this size anyway, and letting it
+     interact would steal the click meant for the page. */
+  pointer-events: none;
+}
+.pp-thumb__cap {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.pp-thumb:hover .pp-thumb__paper {
+  border-color: var(--accent-readable, #2b579a);
+}
+.pp-thumb--active .pp-thumb__paper {
+  outline: 2px solid var(--accent-readable, #2b579a);
+  border-color: var(--accent-readable, #2b579a);
+}
+.pp-thumb--active .pp-thumb__cap {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Miniatures rail for `htmlSrc` documents (see `applyHtmlMultiPage`'s sibling,
+   the named-index list in PrintPreview.tsx): a named row instead of a scaled
+   page — there's no row data to render a faithful thumbnail from, and a
+   dense document (a bulletin) would be illegible at thumbnail size anyway. */
+.pp-thumb-index {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  padding: 6px 8px;
+  cursor: pointer;
+  text-align: left;
+  color: rgba(255, 255, 255, 0.75);
+}
+.pp-thumb-index:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.pp-thumb-index--active {
+  background: var(--accent-readable, #2b579a);
+  color: #fff;
+}
+.pp-thumb-index__n {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}
+.pp-thumb-index__label {
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Sheet + its caption on the stage. */
+.pp-sheetwrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.pp-sheetwrap__badge {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+/* Left dock: tab strip + the search panel that lives beside the thumbnails. */
+.pp-rail__tabs {
+  align-self: stretch;
+  display: flex;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+.pp-rail__tab {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+  padding: 4px 2px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.pp-rail__tab.is-active {
+  color: #fff;
+  border-bottom-color: var(--accent-readable, #2b579a);
+}
+.pp-search {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+.pp-search__opt {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 12px;
+}
+.pp-search__count {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 11px;
+}
+.pp-search__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: auto;
+}
+.pp-search__hit {
+  text-align: start;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 11px;
+  padding: 3px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  gap: 6px;
+}
+.pp-search__hit:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.pp-search__hit.is-active {
+  background: color-mix(in srgb, var(--accent-readable, #2b579a) 40%, transparent);
+  color: #fff;
+}
+.pp-search__hitpage {
+  flex-shrink: 0;
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}
+.pp-search__hittext {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Export / print job options. */
+.pp-job {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Page setup: the controls beside a live miniature of the resulting sheet. */
+.pp-setup {
+  display: flex;
+  gap: 20px;
+}
+.pp-setup__fields {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pp-setup__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.pp-setup__field > span {
+  font-size: 12px;
+  color: var(--text-secondary, rgba(0, 0, 0, 0.65));
+}
+.pp-setup__scale {
+  display: grid;
+  grid-template-columns: 1fr 96px;
+  gap: 10px;
+  align-items: center;
+}
+.pp-setup__hint {
+  font-size: 11.5px;
+  color: var(--text-tertiary, rgba(0, 0, 0, 0.45));
+}
+.pp-setup__preview {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+.pp-setup__sheet {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--hairline, rgba(0, 0, 0, 0.1));
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+}
+.pp-setup__margins {
+  position: absolute;
+  border: 1px dashed color-mix(in srgb, var(--accent-readable, #2b579a) 60%, transparent);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 2px;
+  color: #999;
+}
+.pp-setup__dims {
+  font-size: 11px;
+  color: var(--text-tertiary, rgba(0, 0, 0, 0.45));
+  font-variant-numeric: tabular-nums;
+}
+
+/* Header/footer editor: the six zones laid out as they sit on the page. */
+.pp-bands__hint {
+  color: var(--text-tertiary, rgba(0, 0, 0, 0.45));
+  font-size: 12.5px;
+  margin-bottom: 10px;
+}
+.pp-bands__tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.pp-bands__part {
+  margin-bottom: 12px;
+}
+.pp-bands__cap {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary, rgba(0, 0, 0, 0.45));
+  margin-bottom: 4px;
+}
+.pp-bands__row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.pp-bands__preview {
+  border-top: 1px solid var(--hairline, rgba(0, 0, 0, 0.1));
+  padding-top: 10px;
+}
+.pp-bands__demo {
+  display: flex;
+  gap: 12px;
+  border: 1px dashed var(--hairline, rgba(0, 0, 0, 0.1));
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 11px;
+  color: var(--text-secondary, rgba(0, 0, 0, 0.65));
+}
+.pp-bands__demo span {
+  flex: 1;
+}
+.pp-bands__demo span:nth-child(2) {
+  text-align: center;
+}
+.pp-bands__demo span:last-child {
+  text-align: right;
+}
+
+/* Page header band on a previewed sheet (mirrors the printed `.ph`). */
+.pp-page__band {
+  display: flex;
+  gap: 12px;
+  font-size: 9px;
+  color: #666;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 2px;
+  margin-bottom: 6px;
+}
+.pp-page__band span {
+  flex: 1;
+}
+.pp-page__band span:nth-child(2) {
+  text-align: center;
+}
+.pp-page__band span:last-child {
+  text-align: right;
+}
+
+/* "Plusieurs pages" gallery: each option draws the layout it applies. */
+.pp-nup {
+  display: flex;
+  gap: 6px;
+}
+.pp-nup__opt {
+  border: 1px solid var(--hairline, rgba(0, 0, 0, 0.1));
+  border-radius: 6px;
+  background: transparent;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.pp-nup__opt:hover {
+  border-color: var(--accent-readable, #2b579a);
+}
+.pp-nup__opt.is-active {
+  border-color: var(--accent-readable, #2b579a);
+  background: color-mix(in srgb, var(--accent-readable, #2b579a) 12%, transparent);
+}
+.pp-nup__grid {
+  display: flex;
+  gap: 2px;
+  align-items: flex-end;
+  height: 26px;
+}
+.pp-nup__page {
+  width: 9px;
+  height: 13px;
+  background: #fff;
+  border: 1px solid var(--text-tertiary, rgba(0, 0, 0, 0.45));
+}
+.pp-nup__cap {
+  font-size: 11px;
+  color: var(--text-secondary, rgba(0, 0, 0, 0.65));
+}
+
+/* The viewer area wraps whichever body is active, so the right-click menu
+   covers the whole stage rather than each sheet. */
+.pp-viewer {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Full-bleed preview: antd v6 puts padding on .ant-modal-container, which would
+   frame the ribbon/viewer/status bar in white. Drop it so the chrome runs edge to
+   edge (and reset the accent header band's negative margins, which assumed that
+   padding). The body itself is already padding-less via the modal's styles.body. */
+.pp-modal .ant-modal-container {
+  padding: 0;
+}
+.pp-modal .ant-modal-header {
+  margin: 0;
+}
+
+/* Window-like behaviour: the title bar is the drag handle, and it carries the
+   quick access toolbar to its left (Office's QAT position). */
+.pp-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  cursor: move;
+  user-select: none;
+}
+.pp-titlebar__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Quick access toolbar: small icon-only commands that stay put whatever the
+   ribbon shows, plus the chevron that customises the set. It sits on the accent
+   header band, so it takes the band's palette — white glyphs and a translucent
+   white hover, like the dialog's close button — not the content-surface greys. */
+.pp-qat {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+  cursor: default;
+  padding-inline-end: 10px;
+  border-inline-end: 1px solid rgba(255, 255, 255, 0.28);
+}
+.pp-qat__btn,
+.pp-qat__more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+.pp-qat__more {
+  width: 18px;
+  font-size: 10px;
+}
+.pp-qat__btn:hover:not(:disabled),
+.pp-qat__more:hover {
+  background: var(--chrome-accent-hover, rgba(255, 255, 255, 0.16));
+  color: var(--chrome-on-accent, #ffffff);
+}
+.pp-qat__btn:disabled {
+  color: rgba(255, 255, 255, 0.4);
+  cursor: not-allowed;
+}
+/* Blank stand-in for the tick, so unpinned commands keep their labels aligned
+   with the pinned ones in the customise menu. */
+.pp-qat__tick {
+  display: inline-block;
+  width: 1em;
+}
+.pp-modal--min .pp-titlebar {
+  cursor: pointer;
+}
+/* Minimized = roll-up to the title bar, pinned bottom-left; the rest is hidden and
+   the page behind stays clickable (no mask). */
+.pp-modal--min .ant-modal-body {
+  display: none;
+}
+.pp-root--min .ant-modal-wrap {
+  inset: auto;
+  top: auto;
+  left: 0;
+  bottom: 0;
+  justify-content: flex-start;
+  align-items: flex-end;
+  padding: 0 0 12px 12px;
+  pointer-events: none;
+}
+.pp-root--min .ant-modal {
+  top: 0;
+  pointer-events: auto;
+  transform: none !important;
+}
+
+/* Maximised dialog: taller stages so the bigger window is used. */
+.pp-modal--max .pp-pages,
+.pp-modal--max .pp-rail,
+.pp-modal--max .bp-stage {
+  height: 84vh;
+}
+.pp-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.pp-table th,
+.pp-table td {
+  border: 0;
+  padding: 6px 8px;
+  font-size: 10.5px;
+  text-align: left;
+}
+.pp-table th {
+  background: #eef2f7;
+  color: #17263d;
+  font-weight: 700;
+  border-bottom: 2px solid #5b6b84;
+  white-space: nowrap;
+}
+.pp-table td {
+  color: #46566e;
+}
+.pp-table tbody tr:nth-child(even) td {
+  background: #f7f9fc;
+}
+/* Chiffres alignés sur la virgule, en chasse fixe (voir styleTableauCss). */
+.pp-table th.pp-n,
+.pp-table td.pp-n {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.pp-table--quadrille th.pp-n,
+.pp-table--quadrille td.pp-n {
+  text-align: left;
+}
+.pp-table--quadrille th,
+.pp-table--quadrille td {
+  border: 1px solid #bbb;
+  padding: 5px 7px;
+  font-size: 11px;
+}
+.pp-table--quadrille th {
+  background: #eee;
+  color: #000;
+  border-bottom: 1px solid #bbb;
+  white-space: normal;
+}
+.pp-table--quadrille td {
+  color: #000;
+}
+.pp-table--quadrille tbody tr:nth-child(even) td {
+  background: none;
+}
+
+/* Print-preview page header band (school logo + name). */
+.pp-page__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 2px solid #333;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+.pp-page__head-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+/* Barcodes on printed reports (Code 39) — document footer + per-row column. */
+.pp-doc-bc {
+  text-align: center;
+  margin-top: 12px;
+}
+.pp-doc-bc svg {
+  height: 34px;
+  width: auto;
+  display: inline-block;
+}
+.pp-table td.pp-bc {
+  text-align: center;
+  white-space: nowrap;
+}
+.pp-table td.pp-bc svg {
+  height: 34px;
+  width: auto;
+  display: block;
+  margin: 0 auto;
+}
+.pp-bc-cap {
+  font-size: 8px;
+  letter-spacing: 1px;
+  text-align: center;
+  margin-top: 1px;
+  color: #000;
+}
+.pp-page__logo {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.pp-page__logo--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #bbb;
+  color: #aaa;
+  font-size: 9px;
+  text-align: center;
+}
+.pp-page__school {
+  font-size: 14px;
+  font-weight: 700;
+}
+.pp-table tfoot td {
+  background: none;
+  font-weight: 700;
+  color: #17263d;
+  border-top: 1px solid #5b6b84;
+  border-bottom: 2px solid #17263d;
+}
+.pp-table--quadrille tfoot td {
+  background: #f3f3f3;
+  color: #000;
+  border: 1px solid #bbb;
+  border-top: 2px solid #999;
+}
+
+/* ── Marges que l'on tire (MargesInteractives) ───────────────────────────────
+   Les guides sont la zone de préhension : larges de 11 px pour rester
+   attrapables, alors que le trait visible n'en fait qu'un. */
+.pp-marges {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--hairline, rgba(0, 0, 0, 0.1));
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  flex: none;
+  touch-action: none;
+}
+.pp-marges.is-dragging {
+  cursor: grabbing;
+}
+.pp-marges__zone {
+  position: absolute;
+  border: 1px dashed var(--chrome-accent, #2b579a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary, rgba(0, 0, 0, 0.45));
+  overflow: hidden;
+}
+.pp-marges__guide {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pp-marges__guide::before {
+  content: '';
+  position: absolute;
+  background: var(--chrome-accent, #2b579a);
+  opacity: 0.55;
+}
+.pp-marges__guide:hover::before,
+.pp-marges__guide.is-active::before {
+  opacity: 1;
+}
+.pp-marges__guide--haut,
+.pp-marges__guide--bas {
+  left: 0;
+  right: 0;
+  height: 11px;
+  margin-top: -5px;
+  margin-bottom: -5px;
+  cursor: ns-resize;
+}
+.pp-marges__guide--haut::before,
+.pp-marges__guide--bas::before {
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+.pp-marges__guide--gauche,
+.pp-marges__guide--droite {
+  top: 0;
+  bottom: 0;
+  width: 11px;
+  margin-left: -5px;
+  margin-right: -5px;
+  cursor: ew-resize;
+}
+.pp-marges__guide--gauche::before,
+.pp-marges__guide--droite::before {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+/* La cote ne se montre que pendant le geste (ou au survol) : au repos, la
+   miniature doit rester une page, pas un plan coté. */
+.pp-marges__valeur {
+  position: relative;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--chrome-accent, #2b579a);
+  color: var(--chrome-on-accent, #fff);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+  pointer-events: none;
+}
+.pp-marges__guide:hover .pp-marges__valeur,
+.pp-marges__guide.is-active .pp-marges__valeur {
+  opacity: 1;
+}
+/* Grille des quatre champs de marge dans le dialogue Mise en page. */
+.pp-setup__marges {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+}

@@ -51,6 +51,10 @@ library material and the ribbon layout is not.
 - **Defaults that work with nothing configured.** Every provider is optional;
   `useDataTableConfig` and `useHost` fall back rather than throw. An app should
   be able to render `<DataTable>` and get something reasonable.
+- **One door per capability.** Writing a file goes through `DesktopHost`, for
+  the grid and the print module alike — an app implements the native save
+  dialog once. When a second subsystem wants the same capability, widen the
+  host contract rather than growing a parallel one.
 - **Ship the strings.** A component that calls `t()` ships its own locale keys
   (`desktopLocales`), or every consumer transcribes 54 keys by hand.
 
@@ -96,5 +100,10 @@ the failure mode this repo exists to avoid.
 three copies). Not yet adopted by any app; the migration of `Gestion_ecole` to
 consume it is the next step and the real test.
 
-Still in the apps, deliberately: `Ribbon`, `NavPane`, `TitleBar`, `StatusBar`
-(too divergent), `PrintPreview` (couples to auth, templates, barcodes).
+`@rindra/desktop/print` — the print preview, extracted second. It was already
+written for extraction: two designed injection points (`PreviewDeps`,
+`PreviewMessages`) and, under a 9-line app wrapper, a fully generic
+`DocumentPreview`. The move cost four small rewires, not a refactor.
+
+Still in the apps, deliberately: `Ribbon`, `NavPane`, `TitleBar` and
+`StatusBar` had drifted too far between copies to merge without guessing.

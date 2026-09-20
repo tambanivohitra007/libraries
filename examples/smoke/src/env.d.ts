@@ -3,7 +3,10 @@
 declare global {
   interface Window {
     api: {
-      enregistrerDocument: (name: string, content: string) => Promise<string | null>;
+      enregistrerDocument: (
+        name: string,
+        content: string | Uint8Array,
+      ) => Promise<string | null>;
       montrerFichier: (path: string) => void;
       ouvrirFichier: (path: string) => Promise<boolean>;
       setChromePrefs: (prefs: { accent: string; mode: string }) => Promise<void>;

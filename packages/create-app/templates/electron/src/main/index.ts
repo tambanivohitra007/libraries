@@ -13,7 +13,7 @@ function registerFileHandlers(): void {
     async (
       _e,
       defaultName: string,
-      content: string,
+      content: string | Uint8Array,
       filter?: { name: string; extensions: string[] },
     ): Promise<string | null> => {
       const { canceled, filePath } = await dialog.showSaveDialog({
@@ -23,7 +23,9 @@ function registerFileHandlers(): void {
       // null tells the renderer the user cancelled, which is not an error and
       // must not raise the "saved" notification.
       if (canceled || !filePath) return null;
-      await writeFile(filePath, content, 'utf8');
+      // Text is written as UTF-8; DOCX and XLSX arrive as bytes and must not be
+      // re-encoded, or the file is corrupt on open.
+      await writeFile(filePath, content, typeof content === 'string' ? 'utf8' : null);
       return filePath;
     },
   );

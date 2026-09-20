@@ -6,7 +6,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 const api = {
   saveDocument: (
     name: string,
-    content: string,
+    content: string | Uint8Array,
     filter?: { name: string; extensions: string[] },
   ): Promise<string | null> => ipcRenderer.invoke('doc:save', name, content, filter),
   revealFile: (path: string): Promise<void> => ipcRenderer.invoke('doc:reveal', path),

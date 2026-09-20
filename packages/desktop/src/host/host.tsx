@@ -16,11 +16,12 @@ export interface FileFilter {
  * serve both the desktop and the web build of the same product.
  */
 export interface DesktopHost {
-  /** Save text through a native dialog. Resolves the written path, or `null` if
-   *  the user cancelled. */
+  /** Save a document through a native dialog. Resolves the written path, or
+   *  `null` if the user cancelled. Binary is allowed because the print module
+   *  writes DOCX and XLSX through this same door. */
   saveDocument?: (
     defaultName: string,
-    content: string,
+    content: string | Uint8Array,
     filter?: FileFilter,
   ) => Promise<string | null>;
   /** Show the file in the OS file manager. */
@@ -38,7 +39,9 @@ export interface DesktopHost {
  *  "saved — open it?" affordances. */
 const browserFallback: Required<Pick<DesktopHost, 'saveDocument' | 'revealFile' | 'openFile'>> = {
   saveDocument: async (defaultName, content) => {
-    const url = URL.createObjectURL(new Blob([content], { type: 'text/plain;charset=utf-8' }));
+    const part: BlobPart = typeof content === 'string' ? content : new Uint8Array(content);
+    const type = typeof content === 'string' ? 'text/plain;charset=utf-8' : 'application/octet-stream';
+    const url = URL.createObjectURL(new Blob([part], { type }));
     const a = document.createElement('a');
     a.href = url;
     a.download = defaultName;

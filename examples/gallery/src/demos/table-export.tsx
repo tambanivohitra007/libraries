@@ -1,10 +1,6 @@
-import { Modal, Table } from 'antd';
-import {
-  DataTable,
-  DataTableConfigProvider,
-  type DataColumn,
-  type TablePrintProps,
-} from '@rindra/desktop';
+import { DataTable, DataTableConfigProvider, type DataColumn } from '@rindra/desktop';
+import { PrintPreview } from '@rindra/desktop/print';
+import '@rindra/desktop/print.css';
 import { eleves, ariary, type Eleve } from '../data';
 
 const columns: DataColumn<Eleve>[] = [
@@ -23,41 +19,7 @@ const columns: DataColumn<Eleve>[] = [
 ];
 
 /**
- * Printing is an app concern — letterheads, paper sizes, logos — so the grid
- * only flattens its rows to text and hands them over. This stand-in renders
- * them plainly; a real app would lay out a document here.
- */
-function PrintPreview({ open, data, onClose }: TablePrintProps): React.JSX.Element | null {
-  if (!data) return null;
-  return (
-    <Modal open={open} onCancel={onClose} onOk={onClose} width={720} title={data.title}>
-      <Table
-        size="small"
-        pagination={false}
-        dataSource={data.rows.map((cells, i) => ({ key: i, cells }))}
-        columns={data.headers.map((h, i) => ({
-          title: h,
-          key: h,
-          render: (_: unknown, r: { cells: string[] }) => r.cells[i],
-        }))}
-        summary={() =>
-          data.totals ? (
-            <Table.Summary.Row>
-              {data.totals.map((tot, i) => (
-                <Table.Summary.Cell key={i} index={i}>
-                  <strong>{tot}</strong>
-                </Table.Summary.Cell>
-              ))}
-            </Table.Summary.Row>
-          ) : null
-        }
-      />
-    </Modal>
-  );
-}
-
-/**
- * `exportName` turns on CSV export; a configured `PrintPreview` turns on print.
+ * `exportName` turns on CSV export; providing `PrintPreview` turns on print.
  * With no `DesktopHostProvider` above — as in this browser-only gallery — the
  * export falls back to an anchor download instead of a native save dialog. That
  * fallback is the whole point of the host adapter.

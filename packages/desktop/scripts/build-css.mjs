@@ -29,6 +29,8 @@ writeFileSync(out, flatten(entry), 'utf8');
 // TypeScript rejects a side-effect import of a non-module file unless something
 // declares it. Shipping the declaration here spares every consuming app from
 // needing `vite/client` types or its own `*.css` shim just to import our sheet.
+// print.css is emitted by the Vite build, but needs the same courtesy.
 writeFileSync(`${out}.d.ts`, 'export {};\n', 'utf8');
+writeFileSync(resolve(here, '../dist/print.css.d.ts'), 'export {};\n', 'utf8');
 
 console.log(`styles.css  ${(readFileSync(out, 'utf8').length / 1024).toFixed(1)} kB`);

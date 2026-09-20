@@ -28,7 +28,9 @@ import {
   DataTableConfigProvider,
   DesktopHostProvider,
 } from '@rindra/desktop';
+import { PrintPreview } from '@rindra/desktop/print';
 import '@rindra/desktop/styles.css';
+import '@rindra/desktop/print.css';
 
 <DesktopHostProvider host={electronHost}>
   <AccentProvider locale={frFR}>
@@ -114,17 +116,9 @@ Everything `antd`'s `Table` accepts still passes through.
 
 ### Printing
 
-Print needs letterheads, paper sizes and logos, which are app concerns. The grid
-only flattens its rows and hands them over:
-
-```tsx
-function PrintPreview({ open, data, onClose }: TablePrintProps) { ... }
-
-<DataTableConfigProvider config={{ PrintPreview }}>
-```
-
-Configure no renderer and the print action disappears rather than opening an
-empty modal.
+The grid flattens its rows and hands them to whatever renderer you configure —
+see [Printing](#printing--rindradesktopprint) below. Configure none and the
+print action disappears rather than opening an empty modal.
 
 ## Theming
 
@@ -160,10 +154,58 @@ const { run, available } = useCommands();
 A command dispatched while its screen is unmounted is queued once, so
 "navigate, then act" works — the target screen flushes it on mount.
 
+## Printing — `@rindra/desktop/print`
+
+A standalone print preview, in the shape a commercial suite ships: paper sizes
+and orientation, draggable margins, zoom, watermarks, editable header/footer
+bands with `[Page]`/`[Pages]` tokens, a letterhead, a signature block, and
+export to PDF, DOCX, XLSX, CSV, TSV and JSON.
+
+It is a **separate entry point**, because nothing in it is needed by the grid
+and an app that never prints should not carry a DOCX writer:
+
+```tsx
+import { PrintPreview } from '@rindra/desktop/print';
+import '@rindra/desktop/print.css';
+
+<DataTableConfigProvider config={{ PrintPreview }}>
+```
+
+That is the whole wiring — its props are exactly the grid's `TablePrintProps`.
+Reach for `DocumentPreview` directly for a document that did not come from a
+grid, or when you want your own labels or deps.
+
+### What needs a host
+
+Everything works in a browser except the four things a browser genuinely
+cannot do. Those come from `PreviewDeps`, and without them the preview hides
+those actions rather than offering a dead button:
+
+| | |
+| --- | --- |
+| `exportPdf` | a real PDF, with page numbers in the bands |
+| `printSilent` | print without the browser dialog |
+| `exportXlsx` | a laid-out spreadsheet (CSV always works) |
+| `getEtablissement` / `getLogo` / `getEnteteConfig` | the stored letterhead |
+
+Saving, revealing and opening files are **not** in that list — they come from
+the same `DesktopHost` you already configured, so an app implements one native
+save dialog, not two.
+
+```tsx
+<DocumentPreview deps={{ exportPdf: (html, name) => window.api.exportPdf(html, name) }} … />
+```
+
+### Labels
+
+`PreviewMessages` covers every string, French by default, and the module runs
+with **no i18n library at all**. `PrintPreview` bridges them to i18next under
+`print.preview.*`; pass `messages` to `DocumentPreview` to override.
+
 ## What is deliberately not here
 
-`Ribbon`, `NavPane`, `TitleBar`, `StatusBar` and `PrintPreview` are still in the
-apps. The first four had diverged too far between copies to merge without
-guessing; `PrintPreview` reaches into app auth, templates and barcodes. They are
-phase two, and they need a decision about what is framework and what is app —
-not a copy.
+`Ribbon`, `NavPane`, `TitleBar` and `StatusBar` are still in the apps: they had
+diverged too far between copies to merge without guessing. Extracting them needs
+a decision about what is framework and what is app — the `Ribbon` in particular
+was 68% different between two copies, which usually means the *registry* is
+library material and the layout is not.

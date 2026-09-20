@@ -12,7 +12,17 @@ import {
   type DesktopHost,
   type TablePrintProps,
 } from '@rindra/desktop';
+import {
+  DocumentPreview,
+  PrintPreview,
+  buildCsv,
+  defaultPreviewDeps,
+  enteteParDefaut,
+  PAPER_MM,
+  type PreviewDeps,
+} from '@rindra/desktop/print';
 import '@rindra/desktop/styles.css';
+import '@rindra/desktop/print.css';
 
 /** A row type the library knows nothing about — the grid is generic over it. */
 interface Eleve {
@@ -49,11 +59,19 @@ const electronHost: DesktopHost = {
   setChromePrefs: (prefs) => void window.api.setChromePrefs(prefs),
 };
 
-/** Printing stays an app concern; the grid just hands over flattened rows. */
-function PrintPreview({ open, data }: TablePrintProps): React.JSX.Element | null {
-  if (!open || !data) return null;
-  return <div>{data.title}</div>;
-}
+/** `PrintPreview` from the print entry must satisfy the grid's own contract —
+ *  if this stops compiling, the two halves have drifted apart. */
+const _contract: React.ComponentType<TablePrintProps> = PrintPreview;
+
+/** The pieces a host is expected to override, exercised so their types stay real. */
+const _deps: Partial<PreviewDeps> = {
+  ...defaultPreviewDeps,
+  exportPdf: async () => null,
+  getEnteteConfig: async () => enteteParDefaut(),
+};
+const _csv: string = buildCsv({ title: 't', headers: ['a'], rows: [['1']] });
+const _a4: readonly [number, number] = PAPER_MM.A4;
+export const _used = [_contract, _deps, _csv, _a4, DocumentPreview];
 
 function Screen(): React.JSX.Element {
   const { color, mode, setMode } = useAccent();
