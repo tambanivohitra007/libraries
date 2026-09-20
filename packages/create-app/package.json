@@ -1,0 +1,21 @@
+{
+  "name": "@rindra/create-app",
+  "version": "0.1.0",
+  "description": "Scaffold a React + antd project pre-wired with @rindra/desktop.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "create-rindra-app": "./dist/index.js"
+  },
+  "files": ["dist", "templates"],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/index.js"
+  },
+  "engines": { "node": ">=20" },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "typescript": "^6.0.3"
+  }
+}

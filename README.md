@@ -6,6 +6,7 @@ code instead of a blank file.
 | Package | What it is |
 | --- | --- |
 | [`@rindra/desktop`](packages/desktop) | React + antd desktop chrome: a full-featured data grid, accent/theme system, command bus, design tokens |
+| [`create-rindra-app`](packages/create-app) | Scaffolds a new project — Vite SPA, Electron or Next.js — already wired to the above |
 
 ## Why
 
@@ -20,6 +21,7 @@ this repo is for.
 ```bash
 pnpm install
 pnpm gallery     # live showcase + integration guide for Vite / Electron / Next.js
+pnpm new         # scaffold a new project
 pnpm build
 ```
 

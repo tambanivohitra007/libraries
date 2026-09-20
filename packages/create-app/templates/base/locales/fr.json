@@ -1,0 +1,9 @@
+{
+  "app": {
+    "title": "__APP_NAME__",
+    "records": "Enregistrements",
+    "newRecord": "Nouvel enregistrement",
+    "empty": "Aucun enregistrement",
+    "emptyHint": "Créez le premier pour commencer."
+  }
+}

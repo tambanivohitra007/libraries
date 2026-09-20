@@ -25,6 +25,15 @@ export default defineConfig({
         /^@ant-design\//,
       ],
       output: {
+        // Every export here is browser chrome — it reads localStorage, measures
+        // columns and listens for keys. Without this directive, importing the
+        // package from a Next.js Server Component fails the build with "You're
+        // importing a component that needs `createContext`. This React Hook
+        // only works in a Client Component." The directive lets a consumer
+        // import us from anywhere; it does not stop us being prerendered, which
+        // is correct — client components still SSR.
+        // Must stay the very first statement in the file.
+        banner: "'use client';",
         assetFileNames: (info) =>
           info.names?.includes('index.css') ? 'styles.css' : '[name][extname]',
       },

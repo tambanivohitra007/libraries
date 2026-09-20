@@ -86,6 +86,15 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
 
+  packages/create-app:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.5
+        version: 22.20.4
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+
   packages/desktop:
     devDependencies:
       '@ant-design/icons':

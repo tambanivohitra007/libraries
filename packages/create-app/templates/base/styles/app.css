@@ -1,0 +1,25 @@
+/* The app's own styles. Imported AFTER '@rindra/desktop/styles.css', so these
+   rules win at equal specificity and the library's design tokens are already
+   defined by the time anything here reads them. */
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  padding: 16px;
+  background: var(--app-bg);
+}
+
+.screen__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.screen__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}

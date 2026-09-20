@@ -6,13 +6,14 @@ instead of regenerating it.
 ## Layout
 
 ```
-packages/desktop   @rindra/desktop — React + antd desktop chrome (grid, theme, command bus)
-examples/gallery   live showcase + integration guide  →  pnpm gallery
-examples/smoke     typecheck-only consumer; the contract test for the public API
+packages/desktop      @rindra/desktop — React + antd chrome (grid, theme, command bus)
+packages/create-app   scaffolder for new projects        →  pnpm new
+examples/gallery      live showcase + integration guide  →  pnpm gallery
+examples/smoke        typecheck-only consumer; the contract test for the public API
 ```
 
 pnpm workspace. `pnpm build`, `pnpm typecheck`, `pnpm test` run across packages;
-`pnpm gallery` opens the showcase.
+`pnpm gallery` opens the showcase and `pnpm new` scaffolds a project.
 
 The two examples check different things and both are load-bearing. The gallery
 aliases `@rindra/desktop` to its **source** (so editing a component hot-reloads)
@@ -67,7 +68,18 @@ exports map, so it catches a broken `exports` field, a missing `.d.ts` and an
 un-exported type — none of which the package's own typecheck can see. Extend it
 whenever you add a public export.
 
-## Consuming from a project
+## Consuming in a new project
+
+`pnpm new` scaffolds one — Vite SPA, Electron or Next.js — with the providers
+mounted, i18n seeded and an example grid screen. The templates encode several
+non-obvious fixes (React and i18next deduplication per bundler, `ssr: false`
+placement, a `.d.ts` that must not shadow its `.ts`); `packages/create-app/README.md`
+lists them with the failure each one prevents. Changing a template means
+re-verifying by generating *and building* all three targets — from a short
+filesystem path, or Windows' 260-character limit breaks `electron-vite` with a
+misleading error.
+
+## Consuming in an existing project
 
 Not published to npm. Use a workspace link, or a git dependency pinned to a tag:
 
