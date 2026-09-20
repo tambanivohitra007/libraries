@@ -1,0 +1,74 @@
+/* Design tokens: the brand accent plus the theme-aware surface variables
+   every other sheet paints with. Swapped per display mode via [data-theme]. */
+
+:root {
+  --titlebar-height: 50px;
+  --statusbar-height: 30px;
+  /* Word-style accent chrome (single brand accent, per plan §9.1). */
+  --chrome-accent: #2b579a;
+  --chrome-accent-hover: rgba(255, 255, 255, 0.16);
+  --chrome-on-accent: #ffffff;
+  /* Theme-aware surfaces for the custom chrome (light defaults). antd's own
+     components follow its algorithm; these cover what we paint by hand. The
+     active display mode swaps them via the data-theme attribute below. */
+  --app-bg: #f0f2f5;
+  --surface-bar: #fafafa;
+  --hairline: rgba(0, 0, 0, 0.1);
+  --text-secondary: rgba(0, 0, 0, 0.65);
+  --text-tertiary: rgba(0, 0, 0, 0.45);
+  --status-dot-off: #d9d9d9;
+  --login-backdrop: #eef1f6;
+  --login-card-bg: #ffffff;
+  --login-title: rgba(0, 0, 0, 0.88);
+  --login-subtitle: rgba(0, 0, 0, 0.55);
+  --login-shadow: rgba(0, 0, 0, 0.18);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.22);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.42);
+  --surface-overlay: #ffffff;
+  /* The colour antd paints *inside* a table/card (its colorBgContainer token).
+     Distinct from --surface-overlay in the dark themes, and needed as an opaque
+     base for the grid's row tints (see .data-table). */
+  --table-surface: #ffffff;
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 1px 4px rgba(0, 0, 0, 0.06);
+  --card-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.08), 0 12px 28px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='sombre'] {
+  --app-bg: #141414;
+  --surface-bar: #1d1d1d;
+  --hairline: rgba(255, 255, 255, 0.12);
+  --text-secondary: rgba(255, 255, 255, 0.65);
+  --text-tertiary: rgba(255, 255, 255, 0.45);
+  --status-dot-off: #555555;
+  --login-backdrop: #141414;
+  --login-card-bg: #1f1f1f;
+  --login-title: rgba(255, 255, 255, 0.92);
+  --login-subtitle: rgba(255, 255, 255, 0.55);
+  --login-shadow: rgba(0, 0, 0, 0.55);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.4);
+  --surface-overlay: #1f1f1f;
+  --table-surface: #141414; /* antd's dark colorBgContainer */
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.45);
+  --card-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.5), 0 14px 32px rgba(0, 0, 0, 0.55);
+}
+
+[data-theme='noir'] {
+  --app-bg: #000000;
+  --surface-bar: #000000;
+  --hairline: rgba(255, 255, 255, 0.16);
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-tertiary: rgba(255, 255, 255, 0.5);
+  --status-dot-off: #444444;
+  --login-backdrop: #000000;
+  --login-card-bg: #0a0a0a;
+  --login-title: rgba(255, 255, 255, 0.92);
+  --login-subtitle: rgba(255, 255, 255, 0.6);
+  --login-shadow: rgba(0, 0, 0, 0.7);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.22);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.45);
+  --surface-overlay: #141414;
+  --table-surface: #000000; /* the black theme overrides colorBgContainer */
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.55), 0 6px 18px rgba(0, 0, 0, 0.6);
+  --card-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.6), 0 14px 34px rgba(0, 0, 0, 0.7);
+}

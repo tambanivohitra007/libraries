@@ -1,0 +1,70 @@
+/* Base layer: box model, document defaults, tabular figures and the
+   Fluent-style scrollbars applied to every scrollable surface. */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root,
+.ant-app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family:
+    'Segoe UI',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  overflow: hidden;
+  background: var(--app-bg);
+}
+
+/* Tabular (monospaced) figures so numbers/money/dates align in columns and
+   stats — a subtle but consistently "polished" detail. */
+.ant-table-cell,
+.ant-statistic-content,
+.ant-descriptions-item-content,
+.metric__value,
+.spark-value,
+.toplist__count,
+.donut-legend__val,
+.dash-title {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Fluent / Windows 11-style scrollbars: thin, rounded, inset from the edge,
+   transparent track, thumb that darkens on hover. Theme-aware via variables.
+   Applies to every scrollable surface (workspace, tables, dropdowns, modals). */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}

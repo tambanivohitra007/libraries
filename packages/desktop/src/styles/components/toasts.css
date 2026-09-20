@@ -1,0 +1,58 @@
+/* antd message (toasts) déplacé en bas de l'écran.
+
+   L'API antd n'expose `placement` que pour Notification (réglée sur
+   `bottomRight` dans main.tsx) ; message impose `placement: 'top'` en dur.
+   On repose donc les mêmes règles que la variante « bottom » d'antd sur la
+   liste, repérée par la classe `app-message-bottom` passée via
+   `message={{ classNames: { list } }}`. antd injecte sa CSS à l'exécution :
+   on triple la classe sur la racine pour gagner en spécificité sans
+   `!important`.
+
+   Variables posées par antd sur la racine : `--notification-top` (l'offset
+   demandé, 8px par défaut) et `--notification-margin-edge` (la marge interne
+   qui laisse respirer les ombres). L'arête visible de la bulle reste donc à
+   `--notification-top` du bord, ici le bord bas. */
+.ant-message.ant-message-top.app-message-bottom {
+  top: auto;
+  bottom: calc(var(--notification-top, 8px) - var(--notification-margin-edge, 0px));
+  /* La liste fait 100vh : c'est le sens inverse qui colle les bulles en bas. */
+  flex-direction: column-reverse;
+}
+.ant-message.ant-message-top.app-message-bottom .ant-message-notice {
+  top: auto;
+  bottom: var(--notification-y, 0);
+  transform-origin: center top;
+}
+
+/* Entrée/sortie par le bas — sinon la bulle glisserait encore depuis le haut. */
+.ant-message.ant-message-top.app-message-bottom .ant-message-notice.ant-message-fade-appear-prepare,
+.ant-message.ant-message-top.app-message-bottom .ant-message-notice.ant-message-fade-enter-prepare,
+.ant-message.ant-message-top.app-message-bottom .ant-message-notice.ant-message-fade-appear-start,
+.ant-message.ant-message-top.app-message-bottom .ant-message-notice.ant-message-fade-enter-start,
+.ant-message.ant-message-top.app-message-bottom .ant-message-notice.ant-message-fade-leave-active {
+  transform: translate3d(-50%, 64px, 0) scale(var(--notification-scale, 1));
+}
+
+/* ── Canaux de contact sous un refus de licence ───────────────────────────── */
+
+/* « Contactez-nous pour l'activer » sans adresse laissait la directrice devant
+   une porte close : `erreurNotif()` accroche donc les liens de `lib/contact.ts`
+   en description de la bulle. */
+.erreur-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+.erreur-contact__intro {
+  color: var(--ant-color-text-secondary, rgba(0, 0, 0, 0.65));
+}
+.erreur-contact__liens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+.erreur-contact__lien {
+  white-space: nowrap;
+  font-weight: 500;
+}

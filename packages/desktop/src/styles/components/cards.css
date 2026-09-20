@@ -1,0 +1,104 @@
+/* Shared card primitives: stat/summary tiles, screen intros and quick cards. */
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Subtle elevation for summary/stat tiles (e.g. caisse totals). */
+.summary-card {
+  box-shadow: var(--card-shadow);
+  transition: box-shadow 0.18s ease;
+}
+.summary-card:hover {
+  box-shadow: var(--card-shadow-hover);
+}
+
+/* Empty-state guide shown on a screen before the user has made a selection
+   (e.g. encaissement before a student, notes before a class/matière). */
+.screen-intro {
+  margin-top: 8px;
+}
+.screen-intro__icon {
+  font-size: 52px;
+  color: var(--accent-readable);
+}
+.screen-intro__title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+.screen-intro__text {
+  color: var(--text-tertiary);
+  margin: 4px 0 14px;
+}
+.screen-intro__steps {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+.screen-intro__steps li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+}
+.screen-intro__steps .anticon {
+  color: var(--accent-readable);
+}
+
+.stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  flex-shrink: 0;
+  color: var(--accent-readable);
+}
+
+.quick-card {
+  border-radius: 8px;
+  height: 100%;
+}
+
+.quick-card .ant-card-body {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 100%;
+  min-height: 88px;
+}
+
+.quick-card__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.quick-card__label {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.quick-card .dash-card__sub {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  line-height: 1.3;
+  min-height: calc(1.3em * 2);
+}
+
+.quick-card__arrow {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}

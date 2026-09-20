@@ -1,0 +1,280 @@
+/* App shell layout: the vertical stack, the tab strip, and the per-tab scroll
+   panes that let each tab keep its own scroll position. */
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* The document area: Content holds a vertical stack of [tab strip][workspace]. */
+.app-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0;
+}
+.tabbed-workspace {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The open-tabs strip. antd Tabs is used as the strip only — its content holder
+   is hidden so the real panes (below) control their own mount lifetime. */
+.workspace-tabstrip {
+  flex: none;
+}
+.workspace-tabstrip-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 8px;
+}
+.workspace-tabstrip-row .workspace-tabstrip {
+  flex: 1;
+  min-width: 0;
+}
+.workspace-tabstrip > .ant-tabs-nav {
+  margin: 0;
+  padding: 4px 12px 0;
+}
+.workspace-refresh-btn {
+  margin-top: 2px;
+}
+.workspace-tabstrip > .ant-tabs-content-holder {
+  display: none;
+}
+
+/* Slim indeterminate bar under the tab strip, shown only while a navigation
+   transition is rendering the target page (first mount/fetch). Zero-height when
+   idle so it never shifts the layout. */
+.workspace-progress {
+  flex: none;
+  height: 2px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.workspace-progress.is-active::before {
+  content: '';
+  display: block;
+  height: 100%;
+  width: 35%;
+  border-radius: 2px;
+  background: var(--chrome-accent, #1677ff);
+  animation: workspace-progress-slide 0.9s ease-in-out infinite;
+}
+@keyframes workspace-progress-slide {
+  0% {
+    margin-left: -35%;
+  }
+  100% {
+    margin-left: 100%;
+  }
+}
+
+/* Non-scrolling wrapper for the tab panes. Each pane scrolls on its own (below)
+   so every tab keeps its own scroll position when you switch away and back. */
+.app-workspace {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Each open tab's pane is its own scroll container — that's what makes scroll
+   offset survive a tab switch. Inactive panes are hidden via [hidden] but kept
+   mounted so their component state survives too.
+   Only horizontal padding here: any vertical padding becomes a gap above a
+   sticky table header / below a sticky footer (they pin to top/bottom: 0 of the
+   content box). The vertical breathing room lives on the inner .screen-page so
+   the sticky header/footer reach the pane edges. Positioned so detail drawers
+   (getContainer={false}) confine to the active tab, not the whole window. */
+.tab-pane-host {
+  height: 100%;
+  overflow: auto;
+  padding: 0 20px;
+  position: relative;
+}
+.tab-pane-host[hidden] {
+  display: none;
+}
+
+/* Preferences use vertical tabs: keep the navigation visible while only the
+   active settings pane scrolls. */
+.preferences-page {
+  display: flex;
+  width: 100%;
+  max-width: 920px;
+  height: 100%;
+  min-height: 0;
+}
+.preferences-tabs {
+  display: flex;
+  width: 100%;
+  min-height: 0;
+}
+.preferences-tabs > .ant-tabs-nav {
+  flex: none;
+  align-self: flex-start;
+}
+.preferences-tabs > .ant-tabs-nav .ant-tabs-tab {
+  margin: 0 0 4px;
+  padding: 9px 12px;
+  border-radius: 6px;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+.preferences-tabs > .ant-tabs-nav .ant-tabs-tab:hover {
+  background: color-mix(in srgb, var(--accent-readable) 8%, transparent);
+}
+.preferences-tabs > .ant-tabs-nav .ant-tabs-tab-active {
+  background: var(--chrome-accent);
+  color: #fff;
+  font-weight: 600;
+}
+.preferences-tabs > .ant-tabs-nav .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #fff;
+}
+.preferences-tabs > .ant-tabs-nav .ant-tabs-tab-active .anticon {
+  color: #fff;
+}
+.preferences-tabs > .ant-tabs-content-holder {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding-inline-start: 20px;
+}
+.preferences-tabs > .ant-tabs-content-holder > .ant-tabs-content,
+.preferences-tabs > .ant-tabs-content-holder > .ant-tabs-content > .ant-tabs-tabpane {
+  min-height: 100%;
+}
+
+/* Fenêtre détachée : une réglette à la place du ruban d'onglets, avec le seul
+   geste qui manque là-bas — rendre l'écran à la fenêtre principale. */
+/* Pendant qu'on tire un onglet : la zone de travail se déclare cible de dépôt.
+   Le liseré et l'étiquette répondent à la question « est-ce que ça va marcher ? »
+   avant le lâcher, là où le curseur seul disait le contraire. */
+.app-workspace.is-cible-detachement {
+  outline: 2px dashed var(--accent-readable);
+  outline-offset: -6px;
+}
+.app-workspace__indice {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  pointer-events: none;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--chrome-on-accent);
+  background: var(--chrome-accent);
+  box-shadow: var(--card-shadow);
+}
+
+.workspace-detach-btn,
+.workspace-tabs-menu-btn {
+  flex: none;
+  color: var(--text-tertiary);
+}
+.workspace-detach-btn:hover,
+.workspace-tabs-menu-btn:hover {
+  color: var(--accent-readable);
+}
+
+.fenetre-detachee__barre {
+  display: flex;
+  justify-content: flex-end;
+  padding: 4px 20px;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--surface-bar);
+}
+
+/* ── Onglets déplaçables ─────────────────────────────────────────────────────
+   Chaque onglet est enveloppé dans une poignée de glissement ; l'enveloppe ne
+   doit rien changer à la mise en page du ruban d'onglets, seulement marquer la
+   cible de dépôt. */
+.tabstrip-item {
+  display: inline-flex;
+}
+.tabstrip-item.is-drop-target .ant-tabs-tab {
+  box-shadow: inset 3px 0 0 var(--accent-readable);
+}
+.tabstrip-item .ant-tabs-tab {
+  cursor: grab;
+}
+.tabstrip-item:active .ant-tabs-tab {
+  cursor: grabbing;
+}
+
+/* While a workspace-scoped drawer is open, freeze the screen behind it so only
+   the drawer's own content scrolls. */
+.tab-pane-host.is-drawer-locked {
+  overflow: hidden;
+}
+/* Keep wheel/touch scrolling inside the drawer from chaining to the screen.
+   Workspace drawers anchor to .app-workspace (not the .tab-pane-host they're
+   declared in), so the rule lives at the workspace level. */
+.app-workspace .ant-drawer-body {
+  overscroll-behavior: contain;
+}
+
+/* Shared per-screen layout: a title + description header above the screen body.
+   The body fills the remaining height so full-height screens keep working. */
+.screen-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  /* Vertical breathing room lives here (scrolls with content) rather than on the
+     scroll container, so a table's sticky header/footer pin flush to the edges. */
+  padding-block: 20px;
+}
+.screen-page__body {
+  flex: 1;
+  min-height: 0;
+}
+.screen-head {
+  margin-bottom: 16px;
+}
+/* Titre et « ? » sur la même ligne : l'aide appartient au titre qu'elle
+   explique. Alignés sur la ligne de base du texte, pas sur la boîte. */
+.screen-head__ligne {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.screen-head__aide {
+  flex: none;
+  color: var(--text-tertiary);
+}
+.screen-head__aide:hover {
+  color: var(--accent-readable);
+}
+/* Le mémo d'écran, en tête du volet d'aide : c'est la réponse courte, avant le
+   chapitre du manuel. */
+.aide-ctx__memo {
+  font-size: 14px;
+  line-height: 1.55;
+  border-inline-start: 3px solid var(--accent-readable);
+  padding-inline-start: 10px;
+  margin-bottom: 16px !important;
+  white-space: pre-line;
+}
+.screen-head__title {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 2px;
+}
+.screen-head__desc {
+  color: var(--text-tertiary);
+  font-size: 13px;
+  margin: 0;
+  max-width: 80ch;
+}

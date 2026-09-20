@@ -1,0 +1,296 @@
+/* Shared list grid (DataTable): the AG-Grid-inspired theme, row states, frozen
+   columns, grouping bar and column tools. */
+
+/* A table row revealed by global search (selected from the list first). The
+   accent-tinted background marks it until the user acts on it. Opaque, like the
+   grid's other row states, so frozen columns don't show the scrolling ones
+   through (see .data-table row backgrounds). */
+.row-revealed {
+  --dt-row-bg: color-mix(
+    in srgb,
+    var(--accent-readable) 16%,
+    var(--dt-surface, var(--table-surface))
+  );
+}
+.row-revealed > td {
+  background: var(--dt-row-bg) !important;
+}
+/* Shared list grid (DataTable). */
+.data-table__toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+/* AG-Grid-inspired theme (Alpine/Quartz look): the bordered grid draws the
+   gridlines; here we give the header a flat tint with a stronger underline and
+   a clear row hover. Theme-aware via the surface variables. */
+.data-table .ant-table {
+  font-size: 13px;
+}
+
+.data-table .ant-table-thead > tr > th {
+  background: var(--surface-bar);
+  color: var(--text-secondary);
+  font-weight: 600;
+  border-bottom: 2px solid var(--hairline);
+}
+
+/* Drop antd's header column divider — the bordered gridlines already separate. */
+.data-table .ant-table-thead > tr > th::before {
+  display: none !important;
+}
+
+/* ── Row backgrounds ────────────────────────────────────────────────────────
+   Every state paints through one variable, and every tint is mixed into the
+   grid's own surface rather than into `transparent`. That matters for the
+   frozen columns: a fixed cell floats above the scrolling ones, so a
+   translucent background would let the columns sliding underneath show through.
+   The base is the colour the table itself paints — antd's container token when
+   it exposes one, else our per-theme copy of it. NOT `--surface-overlay`: the
+   two differ in the dark themes. */
+.data-table {
+  --dt-surface: var(--ant-color-bg-container, var(--table-surface));
+}
+.data-table .ant-table-tbody > tr.ant-table-row > td {
+  background: var(--dt-row-bg, var(--dt-surface));
+  /* Snap the selection/hover background in almost instantly instead of easing
+     over antd's default ~0.2s, so a row click feels immediate (pairs with the
+     mouse-down highlight in DataTable). */
+  transition: background 0.04s linear;
+}
+/* Checkbox selection — repainted here because the rule above would otherwise
+   cover antd's own (its styles carry no specificity). */
+.data-table .ant-table-tbody > tr.ant-table-row-selected {
+  --dt-row-bg: color-mix(in srgb, var(--accent-readable) 16%, var(--dt-surface));
+}
+/* The keyboard cursor's row: lighter than a selection, which it's independent of. */
+.data-table .ant-table-tbody > tr.ant-table-row.dt-row-active {
+  --dt-row-bg: color-mix(in srgb, var(--accent-readable) 8%, var(--dt-surface));
+}
+/* Hover comes last so it wins, with a stronger step over the tinted states. */
+.data-table .ant-table-tbody > tr.ant-table-row:hover {
+  --dt-row-bg: color-mix(in srgb, var(--accent-readable) 9%, var(--dt-surface));
+}
+.data-table .ant-table-tbody > tr.ant-table-row.dt-row-active:hover {
+  --dt-row-bg: color-mix(in srgb, var(--accent-readable) 15%, var(--dt-surface));
+}
+.data-table .ant-table-tbody > tr.ant-table-row-selected:hover {
+  --dt-row-bg: color-mix(in srgb, var(--accent-readable) 22%, var(--dt-surface));
+}
+
+/* ── Frozen columns ─────────────────────────────────────────────────────────
+   Flat, like the rest of the grid: antd's gradient shadow at the freeze line is
+   dropped in favour of a plain rule, on the cells and at the container edges. */
+.data-table .ant-table-cell-fix-left::after,
+.data-table .ant-table-cell-fix-right::after,
+.data-table .ant-table-container::before,
+.data-table .ant-table-container::after {
+  box-shadow: none !important;
+}
+.data-table .ant-table-cell-fix-right-first {
+  border-inline-start: 2px solid var(--hairline);
+}
+.data-table .ant-table-cell-fix-left-last {
+  border-inline-end: 2px solid var(--hairline);
+}
+
+/* ── Keyboard cell cursor ───────────────────────────────────────────────────
+   The current cell wears the focus ring, inset so it can't be clipped by the
+   neighbouring gridline. */
+.data-table .ant-table-tbody > tr > td.dt-cell-active {
+  outline: 2px solid var(--accent-readable);
+  outline-offset: -2px;
+}
+/* The cell owns the grid's tab stop; the ring above already marks it, so drop
+   the UA outline (which would double up and sit outside the gridline). */
+.data-table .ant-table-tbody > tr > td[tabindex]:focus {
+  outline: 2px solid var(--accent-readable);
+  outline-offset: -2px;
+}
+
+/* Drag-to-group panel — the grid's own row-group bar: it sits flush on top of
+   the table, sharing the bordered grid's border and header tint so it reads as
+   part of the table. */
+.data-table__groupbar {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 6px 12px;
+  border: 1px solid var(--hairline);
+  border-bottom: none;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  background: var(--surface-bar);
+  transition:
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+/* Drop-target highlight while a header is dragged over the bar. */
+.data-table__groupbar--over {
+  background: color-mix(in srgb, var(--accent-readable) 14%, transparent);
+  box-shadow: inset 0 0 0 1px var(--accent-readable);
+}
+
+/* Square the table's top corners so the bar and grid merge into one unit. */
+.data-table:has(.data-table__groupbar) .ant-table,
+.data-table:has(.data-table__groupbar) .ant-table-container {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.data-table__groupbar-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-tertiary);
+  font-size: 13px;
+}
+
+.data-table__groupbar-label {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-right: 4px;
+}
+
+.data-table__th-draggable {
+  cursor: grab;
+}
+
+/* Group header rows. */
+.data-table .ant-table-tbody > tr.data-table__group-row {
+  --dt-row-bg: color-mix(in srgb, var(--accent-readable) 12%, var(--dt-surface));
+}
+.data-table .ant-table-tbody > tr.data-table__group-row:hover {
+  --dt-row-bg: color-mix(in srgb, var(--accent-readable) 18%, var(--dt-surface));
+}
+.data-table .ant-table-tbody > tr.data-table__group-row > td {
+  font-weight: 600;
+}
+
+/* La bande d'en-tête d'un groupe. Elle couvre plusieurs colonnes (voir le
+   `colSpan` de `DataTable`), donc elle occupe toute sa cellule et se clique
+   partout — la ligne entière bascule de toute façon. */
+.data-table__group-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+/* Le nom du niveau (« Parcours ») s'efface devant sa valeur (« Droit »). */
+.data-table__group-field {
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
+.data-table__group-field::after {
+  content: ' :';
+}
+.data-table__group-value {
+  font-weight: 600;
+}
+/* Le chevron pivote au lieu de changer d'icône : le geste se voit, et rien ne
+   saute. Une seule icône rend l'état continu plutôt que binaire. */
+.data-table__group-caret {
+  transition: transform 0.18s ease;
+}
+.data-table__group-caret.is-open {
+  transform: rotate(90deg);
+}
+
+/* Les lignes d'un groupe qu'on vient de déplier arrivent en fondu. L'animation
+   porte sur les cellules, pas sur le `<tr>` : antd rend une ligne par couche de
+   colonnes figées, et une transformation sur la ligne les désaligne.
+   Le repli n'a pas d'équivalent — ses lignes quittent le jeu de données, il n'y
+   a plus rien à animer. */
+@keyframes dt-ligne-revelee {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+.data-table .ant-table-tbody > tr.data-table__row--revelee > td {
+  animation: dt-ligne-revelee 0.22s ease-out both;
+}
+/* Qui préfère l'immobilité la garde : ni pivot, ni fondu. */
+@media (prefers-reduced-motion: reduce) {
+  .data-table__group-caret,
+  .data-table .ant-table-tbody > tr.data-table__row--revelee > td {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* Column resize handle — a grab strip on the header's right edge. */
+.dt-resize-handle {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  width: 8px;
+  height: 100%;
+  cursor: col-resize;
+  user-select: none;
+  touch-action: none;
+  z-index: 1;
+}
+.dt-resize-handle:hover {
+  background: color-mix(in srgb, var(--accent-readable) 40%, transparent);
+}
+body.dt-resizing {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+/* Floating quick-filter row embedded under each column label. */
+.dt-th {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dt-th-label {
+  font-weight: 600;
+}
+
+/* Pinned rows: a soft accent tint + a left marker so they read as anchored. */
+.data-table .ant-table-tbody > tr.data-table__pinned {
+  --dt-row-bg: color-mix(in srgb, var(--accent-readable) 7%, var(--dt-surface));
+}
+.data-table .ant-table-tbody > tr.data-table__pinned > td:first-child {
+  box-shadow: inset 3px 0 0 var(--accent-readable);
+}
+.dt-pin-on {
+  color: var(--accent-readable);
+}
+.dt-pin-off {
+  opacity: 0.35;
+}
+.data-table .ant-table-tbody > tr:hover .dt-pin-off {
+  opacity: 0.7;
+}
+
+/* Column show/hide + reorder panel rows. */
+.dt-col-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  cursor: grab;
+}
+.dt-col-item:hover {
+  background: color-mix(in srgb, var(--accent-readable) 8%, transparent);
+}
+.dt-col-drag {
+  color: var(--text-tertiary);
+}
+
+/* Sticky column-totals row. */
+.data-table .ant-table-summary > tr.dt-summary-row > td {
+  background: var(--surface-bar);
+  font-weight: 600;
+  border-top: 2px solid var(--hairline);
+}

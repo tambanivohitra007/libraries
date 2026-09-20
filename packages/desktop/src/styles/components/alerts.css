@@ -1,0 +1,71 @@
+/* antd Alert restyled as a quiet document banner. */
+
+/* ── Alerts: quiet document banners ────────────────────────────────────────
+   The style of a well-set form notice, not a marketing callout: a flat
+   surface with a barely-there semantic tint and a tinted hairline border all
+   around — no accent rail, no gradient, no shadow, no icon badge. The glyph
+   colour (plus the faint tint) is the only severity signal, so a screen with
+   a banner still reads as a working surface. Per-type `--alert-accent`
+   drives everything; the accents are desaturated "document" colours (info
+   follows the chrome navy, not antd's bright blue) with lighter variants for
+   the dark theme. antd injects its Alert CSS at runtime, so we double the
+   class (`.ant-alert.ant-alert`) to win specificity without `!important`. */
+.ant-alert-info {
+  --alert-accent: var(--chrome-accent);
+}
+.ant-alert-success {
+  --alert-accent: #1a7f37;
+}
+.ant-alert-warning {
+  --alert-accent: #b45309;
+}
+.ant-alert-error {
+  --alert-accent: #b42318;
+}
+[data-theme='sombre'] .ant-alert-info {
+  --alert-accent: #7ba7dd;
+}
+[data-theme='sombre'] .ant-alert-success {
+  --alert-accent: #5cb96b;
+}
+[data-theme='sombre'] .ant-alert-warning {
+  --alert-accent: #d9a440;
+}
+[data-theme='sombre'] .ant-alert-error {
+  --alert-accent: #e0726a;
+}
+.ant-alert.ant-alert {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--alert-accent) 28%, var(--surface-overlay));
+  border-radius: 4px;
+  padding: 8px 14px;
+  box-shadow: none;
+  background: color-mix(in srgb, var(--alert-accent) 4%, var(--surface-overlay));
+  align-items: center;
+}
+.ant-alert.ant-alert-with-description {
+  align-items: flex-start;
+  padding: 10px 14px;
+}
+/* A plain glyph in the severity colour — no badge, no circle. */
+.ant-alert.ant-alert .ant-alert-icon {
+  flex: none;
+  font-size: 14px;
+  margin-inline-end: 10px;
+  color: var(--alert-accent);
+}
+.ant-alert.ant-alert-with-description .ant-alert-icon {
+  margin-top: 3px;
+}
+.ant-alert.ant-alert .ant-alert-title {
+  font-weight: 600;
+  font-size: 13px;
+}
+.ant-alert.ant-alert-with-description .ant-alert-title {
+  margin-bottom: 2px;
+}
+.ant-alert.ant-alert .ant-alert-description {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}

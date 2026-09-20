@@ -1,0 +1,12 @@
+/* The library's stylesheet. Import once, near the top of your app's entry:
+     import '@rindra/desktop/styles.css';
+   Your own sheets should come after, so app rules win on equal specificity. */
+
+@import './tokens.css';
+@import './base.css';
+@import './a11y.css';
+@import './shell.css';
+@import './components/data-table.css';
+@import './components/cards.css';
+@import './components/alerts.css';
+@import './components/toasts.css';

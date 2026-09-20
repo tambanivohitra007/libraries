@@ -1,0 +1,53 @@
+{
+  "name": "@rindra/desktop",
+  "version": "0.1.0",
+  "description": "Desktop-application chrome for React + antd: a full-featured data grid, command bus, accent/theme system and design tokens.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": {
+      "types": "./dist/styles.css.d.ts",
+      "default": "./dist/styles.css"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.build.json && node scripts/build-css.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "peerDependencies": {
+    "@ant-design/icons": "^6.0.0",
+    "antd": "^6.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-i18next": "^17.0.0"
+  },
+  "devDependencies": {
+    "@ant-design/icons": "^6.2.5",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^6.0.2",
+    "antd": "^6.4.3",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-i18next": "^17.0.8",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16",
+    "vitest": "^4.1.8"
+  }
+}

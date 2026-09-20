@@ -1,0 +1,22 @@
+/* Keyboard focus rings for the custom (non-antd) buttons, kept together so the
+   rules that make the app navigable without a mouse are reviewable in one place. */
+
+/* Keyboard focus rings for the custom (non-antd) buttons. On the accent title
+   band the ring is white; on content surfaces it uses the readable accent. */
+.ribbon-cmd:focus-visible,
+.ribbon__collapse:focus-visible {
+  outline: 2px solid var(--accent-readable);
+  outline-offset: -2px;
+  border-radius: 6px;
+}
+
+.title-bar__qat-btn:focus-visible,
+.title-bar__controls button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.85);
+  outline-offset: -3px;
+}
+
+.login-window-controls button:focus-visible {
+  outline: 2px solid var(--accent-readable);
+  outline-offset: -3px;
+}
