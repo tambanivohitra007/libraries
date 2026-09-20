@@ -22,7 +22,7 @@ this repo is for.
 pnpm install
 pnpm gallery     # live showcase + integration guide for Vite / Electron / Next.js
 pnpm new         # scaffold a new project
-pnpm build
+pnpm buildx<
 ```
 
 The gallery is the place to start: every component runs live, each demo shows
