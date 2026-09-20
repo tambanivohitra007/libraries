@@ -19,8 +19,13 @@ this repo is for.
 
 ```bash
 pnpm install
+pnpm gallery     # live showcase + integration guide for Vite / Electron / Next.js
 pnpm build
 ```
+
+The gallery is the place to start: every component runs live, each demo shows
+the exact file that is running, and the **Integration** page has copy-paste
+steps for each of the three project shapes.
 
 Consume from a project with a workspace link, or a git dependency pinned to a
 tag:

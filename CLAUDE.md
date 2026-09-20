@@ -7,10 +7,19 @@ instead of regenerating it.
 
 ```
 packages/desktop   @rindra/desktop — React + antd desktop chrome (grid, theme, command bus)
-examples/smoke     typecheck-only consumer; it is the contract test for the public API
+examples/gallery   live showcase + integration guide  →  pnpm gallery
+examples/smoke     typecheck-only consumer; the contract test for the public API
 ```
 
-pnpm workspace. `pnpm build`, `pnpm typecheck`, `pnpm test` run across packages.
+pnpm workspace. `pnpm build`, `pnpm typecheck`, `pnpm test` run across packages;
+`pnpm gallery` opens the showcase.
+
+The two examples check different things and both are load-bearing. The gallery
+aliases `@rindra/desktop` to its **source** (so editing a component hot-reloads)
+and proves the library renders with no Electron at all — the host fallbacks are
+exercised for real. The smoke app imports the **built** package through its
+exports map, which is the only way to catch a broken `exports` field, a missing
+`.d.ts` or an un-exported type.
 
 ## The rule that governs this repo
 

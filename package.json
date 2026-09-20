@@ -4,10 +4,10 @@
   "private": true,
   "description": "Shared UI libraries extracted from repeated project code.",
   "scripts": {
+    "gallery": "pnpm --filter @rindra/gallery dev",
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test",
-    "lint": "pnpm -r lint"
+    "test": "pnpm -r test"
   },
   "devDependencies": {
     "typescript": "^6.0.3"

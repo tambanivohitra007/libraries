@@ -1,0 +1,136 @@
+/* The gallery's own chrome. It paints with the library's tokens rather than
+   its own colours, so switching accent or mode restyles the shell too — if a
+   token is wrong, it is visible here first. */
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+.gallery {
+  min-height: 100%;
+}
+
+.gallery__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0 20px;
+  height: var(--titlebar-height);
+  line-height: normal;
+  background: var(--chrome-accent);
+}
+
+.gallery__brand {
+  color: var(--chrome-on-accent);
+  font-size: 15px;
+}
+
+.gallery__version {
+  color: var(--chrome-on-accent);
+  opacity: 0.65;
+  font-size: 12px;
+}
+
+/* Accent swatches in the header band. The selected ring is a box-shadow rather
+   than a border: a border would eat into the 18px of colour, which made the
+   blue swatch vanish against the blue band when it was the active one. */
+.swatch {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 3px;
+  cursor: pointer;
+  outline-offset: 3px;
+}
+
+.swatch--on {
+  box-shadow:
+    0 0 0 2px var(--chrome-accent),
+    0 0 0 4px var(--chrome-on-accent);
+}
+
+.gallery__sider {
+  border-inline-end: 1px solid var(--hairline);
+  background: var(--surface-bar);
+}
+
+.gallery__sider .ant-menu {
+  background: transparent;
+  border-inline-end: 0;
+}
+
+.gallery__content {
+  padding: 24px;
+  background: var(--app-bg);
+  overflow: auto;
+}
+
+.demo {
+  max-width: 1100px;
+  padding: 20px;
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  background: var(--surface-overlay);
+  box-shadow: var(--card-shadow);
+}
+
+.demo__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.demo__stage {
+  padding: 16px;
+  border: 1px dashed var(--hairline);
+  border-radius: 6px;
+  background: var(--table-surface);
+}
+
+.demo__code {
+  position: relative;
+}
+
+.demo__copy {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+}
+
+.demo pre,
+.integration__step pre {
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  background: var(--app-bg);
+  overflow: auto;
+  font-size: 12.5px;
+  line-height: 1.6;
+  tab-size: 2;
+}
+
+.demo code,
+.integration__step code {
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+}
+
+.demo__type {
+  color: var(--accent-readable);
+}
+
+.integration__step {
+  padding-bottom: 8px;
+}
+
+.integration__step pre {
+  max-width: 78ch;
+}
